@@ -436,5 +436,99 @@ lynx 10.76.2.4
 ```
 ![image](https://github.com/user-attachments/assets/31370c8a-20dc-4235-99c1-288a6caaabb8)
 
+## No.7
+Dikarenakan Armin sudah mendapatkan kekuatan titan colossal, maka bantulah kaum eldia menggunakan colossal agar dapat bekerja sama dengan baik. Kemudian lakukan testing dengan 6000 request dan 200 request/second. (7)
+
+### Membuat script untuk konfigurasi 
+>Colossal/Script7.sh
+```
+#!/bin/bash
+
+# Konfigurasi nameserver
+echo nameserver 10.76.4.3 > /etc/resolv.conf
+
+# Update dan install paket yang diperlukan
+apt-get update
+apt-get install apache2-utils -y   # Untuk testing menggunakan ApacheBench (ab)
+apt-get install nginx -y           # Install Nginx sebagai load balancer
+apt-get install lynx -y            # Install lynx untuk akses web via command line
+
+# Konfigurasi Nginx untuk load balancing menggunakan PHP load balancer
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/colossal_lb
+
+# Tambahkan konfigurasi load balancing
+echo '
+    upstream php_backend {
+        server 10.76.2.2;  # Armin
+        server 10.76.2.3;  # Eren
+        server 10.76.2.4;  # Mikasa
+    }
+
+    server {
+        listen 80;
+        root /var/www/html;
+        index index.html index.htm index.nginx-debian.html;
+        server_name _;
+
+        location / {
+            proxy_pass http://php_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+' > /etc/nginx/sites-available/colossal_lb
+
+# Aktifkan konfigurasi load balancer
+ln -sf /etc/nginx/sites-available/colossal_lb /etc/nginx/sites-enabled/
+
+# Hapus default jika masih ada
+if [ -f /etc/nginx/sites-enabled/default ]; then
+    rm /etc/nginx/sites-enabled/default
+fi
+
+# Restart layanan Nginx agar konfigurasi baru berlaku
+service nginx restart
+```
+
+### Melakukan test di client
+```
+ab -n 6000 -c 200 http://10.76.3.3/
+```
+![image](https://github.com/user-attachments/assets/d4551962-045a-4cf3-9b6a-ec8a5e0995a0)
+![image](https://github.com/user-attachments/assets/ed5e4f04-571c-4665-bbda-eeedb183500f)
+
+## No.8
+### Melakukan Pengetesan untuk semua algoritma
+#### Round-Robin
+```
+ab -n 1000 -c 75 http://10.76.3.3:81/
+```
+![image](https://github.com/user-attachments/assets/055dc942-66d8-4163-9784-21b2d31d468c)
+#### Weight Round-Robin
+```
+ab -n 1000 -c 75 http://10.76.3.3:82/
+```
+![image](https://github.com/user-attachments/assets/86fad1f6-68cc-41ea-b253-7425b487b200)
+#### Generic Hash
+```
+ab -n 1000 -c 75 http://10.76.3.3:83/
+```
+![image](https://github.com/user-attachments/assets/b20d2f6f-2022-418b-9c3b-1bd7e7b2b8a5)
+#### IP Hash
+```
+ab -n 1000 -c 75 http://10.76.3.3:84/
+```
+![image](https://github.com/user-attachments/assets/88485530-ae96-4f38-aa3b-7befe395b4a6)
+#### Least Connection
+```
+ab -n 1000 -c 75 http://10.76.3.3:85/
+```
+![image](https://github.com/user-attachments/assets/7510742d-11ec-4f15-b7dd-07d833d51af2)
+
+
+
+
 
 
