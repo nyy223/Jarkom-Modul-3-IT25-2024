@@ -420,7 +420,21 @@ service php7.0-fpm restart
 service nginx restart
 ```
 
+### Test di client Zeke dan Erwin
+```
+lynx 10.76.2.2
+```
+![Screenshot 2024-10-22 123416](https://github.com/user-attachments/assets/00684227-522e-4379-a120-6e08219b7a92)
 
+```
+lynx 10.76.2.3
+```
+![image](https://github.com/user-attachments/assets/c4cd9899-5e11-437e-af68-138e5d10d8a8)
+
+```
+lynx 10.76.2.4
+```
+![image](https://github.com/user-attachments/assets/31370c8a-20dc-4235-99c1-288a6caaabb8)
 
 
 
