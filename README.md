@@ -356,15 +356,15 @@ echo nameserver 10.76.4.3 >> /etc/resolv.conf
 # Update dan install paket
 apt-get update
 
-# Instal Nginx dan PHP 7.0 bersama dengan PHP-FPM
+# Instal Nginx dan PHP 7.3 bersama dengan PHP-FPM
 apt-get install nginx -y
 apt-get install lynx -y
-apt-get install php7.0 php7.0-fpm php7.0-mysql -y   # Install PHP 7.0 dan modul yang diperlukan
+apt-get install php7.3 php7.3-fpm php7.3-mysql -y   # Install PHP 7.3 dan modul yang diperlukan
 apt-get install wget -y
 apt-get install unzip -y
 apt-get install rsync -y    # Install rsync untuk transfer file
 service nginx start
-service php7.0-fpm start    # Jalankan PHP-FPM versi 7.0
+service php7.3-fpm start    # Jalankan PHP-FPM versi 7.3
 
 # Download file modul-3.zip dari Google Drive
 wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1ufulgiWyTbOXQcow11JkXG7safgLq1y-' -O '/var/www/modul-3.zip'
@@ -409,14 +409,14 @@ echo 'server {
 
      location ~ \.php$ {
          include snippets/fastcgi-php.conf;
-         fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+         fastcgi_pass unix:/run/php/php7.3-fpm.sock;
          fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
          include fastcgi_params;
      }
  }' > /etc/nginx/sites-available/marley.it25.com
 
-# Restart Nginx dan PHP-FPM 7.0
-service php7.0-fpm restart
+# Restart Nginx dan PHP-FPM 7.3
+service php7.3-fpm restart
 service nginx restart
 ```
 
