@@ -502,6 +502,7 @@ ab -n 6000 -c 200 http://10.76.3.3/
 ## No.8
 
 ### Membuat script untuk konfigurasi setiap algoritma load balancer
+>colossal/Script8.sh
 ```
 #!/bin/bash
 
@@ -676,6 +677,170 @@ ab -n 1000 -c 75 http://10.76.3.3:85/
 Generic Hash dan IP Hash adalah algoritma load balancer yang paling efisien dalam hal RPS pada pengujian ini, dengan Generic Hash sedikit lebih unggul.
 Least Connection juga menunjukkan performa yang baik, tetapi kurang optimal dibandingkan dua algoritma tersebut.
 Round Robin dan Weighted Round Robin berada di posisi terendah dalam hal RPS, mungkin karena distribusi beban yang tidak memperhatikan kondisi atau kemampuan server backend.
+
+## No.9
+### Mengubah konfigurasi untuk Algoritma Least Connection dengan mengubah jumlah worker
+![image](https://github.com/user-attachments/assets/6879cdd6-6688-4c45-87f6-c2a43b37f5f5)
+
+### Melakukan pengetesan
+#### 1 Worker
+![image](https://github.com/user-attachments/assets/119b525b-4eff-4e6c-afe9-37a07f67d36e)
+
+#### 2 Worker
+![image](https://github.com/user-attachments/assets/54d2afe4-54c8-4e85-a732-35ef8e553cdb)
+
+#### 3 Worker
+![image](https://github.com/user-attachments/assets/97464c01-4515-40d0-9286-e83086337f56)
+
+#### Grafik
+![image](https://github.com/user-attachments/assets/ca8eb252-fd64-46eb-a10c-82769624732d)
+
+## No.10
+### Menambah konfigurasi untuk membuat file htpasswd dengan username arminannie dan password jrkmit25
+>colossal/Script10.sh
+```
+#!/bin/bash
+
+# Membuat direktori untuk menyimpan file htpasswd
+mkdir -p /etc/nginx/supersecret
+
+# Membuat file htpasswd dengan username arminannie dan password jrkmit25
+htpasswd -cb /etc/nginx/supersecret/htpasswd arminannie jrkmit25
+
+# Konfigurasi Round Robin
+echo '
+    upstream round-robin {
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 81;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            proxy_pass http://round-robin;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+    }
+' > /etc/nginx/sites-available/round_robin
+
+# Konfigurasi Weighted Round Robin
+echo '
+    upstream weight_round-robin {
+        server 10.76.2.2 weight=3;
+        server 10.76.2.3 weight=2;
+        server 10.76.2.4 weight=1;
+    }
+
+    server {
+        listen 82;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            proxy_pass http://weight_round-robin;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+    }
+' > /etc/nginx/sites-available/weight_round_robin
+
+# Konfigurasi Generic Hash
+echo '
+    upstream generic_hash {
+        hash $request_uri consistent;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 83;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            proxy_pass http://generic_hash;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+    }
+' > /etc/nginx/sites-available/generic_hash
+
+# Konfigurasi IP Hash
+echo '
+    upstream ip_hash {
+        ip_hash;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 84;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            proxy_pass http://ip_hash;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+    }
+' > /etc/nginx/sites-available/ip_hash
+
+# Konfigurasi Least Connections
+echo '
+    upstream least_connection {
+        least_conn;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 85;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            proxy_pass http://least_connection;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+    }
+' > /etc/nginx/sites-available/least_connection
+
+# Aktivasi semua konfigurasi load balancer
+ln -sf /etc/nginx/sites-available/round_robin /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/weight_round_robin /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/generic_hash /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/ip_hash /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/least_connection /etc/nginx/sites-enabled/
+
+# Restart Nginx untuk menerapkan perubahan
+service nginx restart
+```
+
+### Test di client
+```
+lynx http://10.76.3.3:81
+```
+![image](https://github.com/user-attachments/assets/b1a554ed-c750-4f6f-87c3-adb1fb598d1c)
+![image](https://github.com/user-attachments/assets/54aa5005-0937-42f0-a30c-7668c54d5798)
+![image](https://github.com/user-attachments/assets/57853a05-baf4-473f-847a-6b1929e2e644)
+![image](https://github.com/user-attachments/assets/f64c2ff5-9280-4407-bda0-5887763551a5)
+
+
 
 
 
