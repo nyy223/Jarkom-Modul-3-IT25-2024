@@ -271,7 +271,7 @@ echo '# Defaults for isc-dhcp-relay initscript
 #
 
 # What servers should the DHCP relay forward requests to?
-SERVERS="10.75.4.3" 
+SERVERS="10.76.4.3" 
 
 # On what interfaces should the DHCP relay (dhrelay) serve DHCP requests?
 INTERFACES="eth1 eth2 eth3 eth4"
