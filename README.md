@@ -500,6 +500,11 @@ ab -n 6000 -c 200 http://10.76.3.3/
 ![image](https://github.com/user-attachments/assets/ed5e4f04-571c-4665-bbda-eeedb183500f)
 
 ## No.8
+Karena Erwin meminta “laporan kerja Armin”, maka dari itu buatlah analisis hasil testing dengan 1000 request dan 75 request/second untuk masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
+1. Nama Algoritma Load Balancer
+2. Report hasil testing pada Apache Benchmark
+3. Grafik request per second untuk masing masing algoritma. 
+4. Analisis (8)
 
 ### Membuat script untuk konfigurasi setiap algoritma load balancer
 >Colossal/Script8.sh
@@ -679,6 +684,7 @@ Least Connection juga menunjukkan performa yang baik, tetapi kurang optimal diba
 Round Robin dan Weighted Round Robin berada di posisi terendah dalam hal RPS, mungkin karena distribusi beban yang tidak memperhatikan kondisi atau kemampuan server backend.
 
 ## No.9
+Dengan menggunakan algoritma Least-Connection, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 1000 request dengan 10 request/second, kemudian tambahkan grafiknya pada “laporan kerja Armin”. (9)
 ### Mengubah konfigurasi untuk Algoritma Least Connection dengan mengubah jumlah worker
 ![image](https://github.com/user-attachments/assets/6879cdd6-6688-4c45-87f6-c2a43b37f5f5)
 
@@ -696,6 +702,7 @@ Round Robin dan Weighted Round Robin berada di posisi terendah dalam hal RPS, mu
 ![image](https://github.com/user-attachments/assets/ca8eb252-fd64-46eb-a10c-82769624732d)
 
 ## No.10
+Selanjutnya coba tambahkan keamanan dengan konfigurasi autentikasi di Colossal dengan dengan kombinasi username: “arminannie” dan password: “jrkmyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/supersecret/ (10)
 ### Menambah konfigurasi untuk membuat file htpasswd dengan username arminannie dan password jrkmit25
 >Colossal/Script10.sh
 ```
@@ -841,6 +848,8 @@ lynx http://10.76.3.3:81
 ![image](https://github.com/user-attachments/assets/f64c2ff5-9280-4407-bda0-5887763551a5)
 
 ## No.11
+Lalu buat untuk setiap request yang mengandung /titan akan di proxy passing menuju halaman https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki (11) 
+hint: (proxy_pass)
 ### Menambah konfigurasi untuk proxy pass /titan ke https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki
 >Colossal/Script11.sh
 ```
