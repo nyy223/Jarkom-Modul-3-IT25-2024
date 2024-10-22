@@ -342,6 +342,84 @@ service isc-dhcp-server restart
 ![image](https://github.com/user-attachments/assets/3dbf6b7c-1fc4-4aed-9f7b-154b44766ca4)
 ![image](https://github.com/user-attachments/assets/bb1a0ba2-00e5-44bb-9ac5-d74d257316d7)
 
+## No.6
+Armin berinisiasi untuk memerintahkan setiap worker PHP untuk melakukan konfigurasi virtual host untuk website berikut https://intip.in/BangsaEldia dengan menggunakan php 7.3 (6)
+
+### Membuat script untuk menambahkan nameserver IP DHCP Server, menginstall PHP, mendownload kebutuhan untuk PHP di link yang disediakan, mengekstrak, memindah dan melakukan symlink pada file yang sudah di download, lalu mengatur konfigurasi Nginx
+>Armin, Eren, Mikasa/Script6.sh
+```
+#!/bin/bash
+
+# Tambahkan nameserver
+echo nameserver 10.76.4.3 >> /etc/resolv.conf
+
+# Update dan install paket
+apt-get update
+
+# Instal Nginx dan PHP 7.0 bersama dengan PHP-FPM
+apt-get install nginx -y
+apt-get install lynx -y
+apt-get install php7.0 php7.0-fpm php7.0-mysql -y   # Install PHP 7.0 dan modul yang diperlukan
+apt-get install wget -y
+apt-get install unzip -y
+apt-get install rsync -y    # Install rsync untuk transfer file
+service nginx start
+service php7.0-fpm start    # Jalankan PHP-FPM versi 7.0
+
+# Download file modul-3.zip dari Google Drive
+wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1ufulgiWyTbOXQcow11JkXG7safgLq1y-' -O '/var/www/modul-3.zip'
+
+# Ekstrak file zip
+unzip -o /var/www/modul-3.zip -d /var/www/
+rm /var/www/modul-3.zip
+
+# Pindahkan isi dari folder modul-3 ke marley.it25.com menggunakan rsync
+rsync -av /var/www/modul-3/ /var/www/marley.it25.com/
+
+# Hapus folder modul-3 yang kosong
+rm -r /var/www/modul-3
+
+# Konfigurasi Nginx
+cp /etc/nginx/sites-available/default /etc/nginx/sites-available/marley.it25.com
+
+# Periksa apakah symbolic link sudah ada, jika iya, hapus dulu
+if [ -L /etc/nginx/sites-enabled/marley.it25.com ]; then
+    rm /etc/nginx/sites-enabled/marley.it25.com
+fi
+
+# Buat symbolic link baru
+ln -s /etc/nginx/sites-available/marley.it25.com /etc/nginx/sites-enabled/
+
+# Periksa apakah default sudah ada, jika iya, hapus
+if [ -L /etc/nginx/sites-enabled/default ]; then
+    rm /etc/nginx/sites-enabled/default
+fi
+
+# Membuat konfigurasi Nginx untuk marley.it25.com
+echo 'server {
+     listen 80;
+     server_name _;
+
+     root /var/www/marley.it25.com/;
+     index index.php index.html index.htm;
+
+     location / {
+         try_files $uri $uri/ /index.php?$query_string;
+     }
+
+     location ~ \.php$ {
+         include snippets/fastcgi-php.conf;
+         fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+         include fastcgi_params;
+     }
+ }' > /etc/nginx/sites-available/marley.it25.com
+
+# Restart Nginx dan PHP-FPM 7.0
+service php7.0-fpm restart
+service nginx restart
+```
+
 
 
 
