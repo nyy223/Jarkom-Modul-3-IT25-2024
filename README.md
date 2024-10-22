@@ -644,28 +644,38 @@ service nginx restart
 ```
 ab -n 1000 -c 75 http://10.76.3.3:81/
 ```
-![image](https://github.com/user-attachments/assets/055dc942-66d8-4163-9784-21b2d31d468c)
+![image](https://github.com/user-attachments/assets/91fa8f4e-7630-4628-a580-5e6ab2b3a9f4)
+
 #### Weight Round-Robin
 ```
 ab -n 1000 -c 75 http://10.76.3.3:82/
 ```
-![image](https://github.com/user-attachments/assets/86fad1f6-68cc-41ea-b253-7425b487b200)
+![image](https://github.com/user-attachments/assets/49693449-278d-42b9-9973-e50280b76cde)
+
 #### Generic Hash
 ```
 ab -n 1000 -c 75 http://10.76.3.3:83/
 ```
-![image](https://github.com/user-attachments/assets/b20d2f6f-2022-418b-9c3b-1bd7e7b2b8a5)
+![image](https://github.com/user-attachments/assets/f9dcef06-fa42-4d03-b7c2-344ec9a19cf1)
+
 #### IP Hash
 ```
 ab -n 1000 -c 75 http://10.76.3.3:84/
 ```
-![image](https://github.com/user-attachments/assets/88485530-ae96-4f38-aa3b-7befe395b4a6)
+![image](https://github.com/user-attachments/assets/e99e9f20-db1e-434f-85d6-bd1072139b43)
+
 #### Least Connection
 ```
 ab -n 1000 -c 75 http://10.76.3.3:85/
 ```
-![image](https://github.com/user-attachments/assets/7510742d-11ec-4f15-b7dd-07d833d51af2)
+![image](https://github.com/user-attachments/assets/1c5b04e0-8b92-42f1-9d18-ae8d4dd5487f)
 
+### Grafik dan Analisis
+![Screenshot 2024-10-22 174357](https://github.com/user-attachments/assets/24c99074-a29e-4057-a1fb-9dddd07de211)
+
+Generic Hash dan IP Hash adalah algoritma load balancer yang paling efisien dalam hal RPS pada pengujian ini, dengan Generic Hash sedikit lebih unggul.
+Least Connection juga menunjukkan performa yang baik, tetapi kurang optimal dibandingkan dua algoritma tersebut.
+Round Robin dan Weighted Round Robin berada di posisi terendah dalam hal RPS, mungkin karena distribusi beban yang tidak memperhatikan kondisi atau kemampuan server backend.
 
 
 
