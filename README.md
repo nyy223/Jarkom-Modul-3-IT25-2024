@@ -130,3 +130,46 @@ auto eth0
 iface eth0 inet dhcp
 ```
 
+## Instalasi Dependensi
+#### Paradis (DHCP Relay)
+```
+apt-get update
+apt-get install isc-dhcp-relay -y
+```
+#### Tybur (DHCP Server)
+```
+apt-get update
+apt-get install isc-dhcp-server -y
+```
+#### Fritz (DNS Server)
+```
+apt-get update
+apt-get install bind9 -y
+```
+#### Beast dan Colossal (Load Balancer)
+```
+apt-get update
+apt-get install apache2-utils -y
+apt-get install nginx -y
+apt-get install lynx -y
+```
+#### Warhammer (Database Server)
+```
+apt-get update
+apt-get install mariadb-server -y
+```
+#### Annie, Bertholdt, Reiner (Laravel Worker)
+#### Armin, Eren, Mikasa (PHP Worker)
+#### Zeke dan Erwin (Client)
+```
+apt-get update
+apt-get install lynx -y
+apt-get install htop -y
+apt-get install apache2-utils -y
+apt-get install jq -y
+```
+
+## No.0
+Pulau Paradis telah menjadi tempat yang damai selama 1000 tahun, namun kedamaian tersebut tidak bertahan selamanya. Perang antara kaum Marley dan Eldia telah mencapai puncak. Kaum Marley yang dipimpin oleh Zeke, me-register domain name marley.yyy.com untuk worker Laravel mengarah pada Annie. Namun ternyata tidak hanya kaum Marley saja yang berinisiasi, kaum Eldia ternyata sudah mendaftarkan domain name eldia.yyy.com untuk worker PHP (0) mengarah pada Armin.
+
+#### Membuat Script
