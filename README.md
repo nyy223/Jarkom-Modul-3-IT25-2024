@@ -1096,7 +1096,7 @@ echo '
     }
 
     server {
-        listen 10.76.2.1:81;
+        listen 81;
         root /var/www/html;
         index index.php index.html index.htm;
         server_name _;
@@ -1128,7 +1128,7 @@ echo '
     }
 
     server {
-        listen 10.76.2.1:82;
+        listen 82;
         root /var/www/html;
         index index.php index.html index.htm;
         server_name _;
@@ -1161,7 +1161,7 @@ echo '
     }
 
     server {
-        listen 10.76.2.1:83;
+        listen 83;
         root /var/www/html;
         index index.php index.html index.htm;
         server_name _;
@@ -1194,7 +1194,7 @@ echo '
     }
 
     server {
-        listen 10.76.2.1:84;
+        listen 84;
         root /var/www/html;
         index index.php index.html index.htm;
         server_name _;
@@ -1227,7 +1227,7 @@ echo '
     }
 
     server {
-        listen 10.76.2.1:85;
+        listen 85;
         root /var/www/html;
         index index.php index.html index.htm;
         server_name _;
@@ -1259,6 +1259,7 @@ ln -sf /etc/nginx/sites-available/least_connection /etc/nginx/sites-enabled/
 
 # Restart Nginx untuk menerapkan perubahan
 service nginx restart
+
 ```
 
 ### Menambah konfigurasi untuk client Erwin
