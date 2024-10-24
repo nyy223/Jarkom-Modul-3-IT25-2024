@@ -1011,7 +1011,284 @@ lynx http://10.76.3.3:81/titan
 ```
 ![Screenshot 2024-10-22 195338](https://github.com/user-attachments/assets/3cf4941a-e6b1-4d17-b243-5bd8aa44c7a5)
 
+## No.12
+### Mengecek MAC Address Erwin
+![image](https://github.com/user-attachments/assets/0fb97c5f-8943-4d28-b55e-a50836ac1d62)
 
+### Menambah konfigurasi untuk fixed address client Erwin
+>Tybur/Script12.sh
+```
+#!/bin/bash
+
+# Update and install isc-dhcp-server
+apt-get update
+apt-get install isc-dhcp-server -y
+
+# Configure the DHCP server interface
+echo 'INTERFACESv4="eth0"
+INTERFACESv6=""
+' > /etc/default/isc-dhcp-server
+
+# DHCP configuration
+subnet="option domain-name \"example.org\";
+option domain-name-servers ns1.example.org, ns2.example.org;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+ddns-update-style none;
+
+subnet 10.76.1.0 netmask 255.255.255.0 {
+    range 10.76.1.5 10.76.1.25;
+    range 10.76.1.50 10.76.1.100;
+    option routers 10.76.1.1;
+    option broadcast-address 10.76.1.255;
+    option domain-name-servers 10.76.4.2;
+    default-lease-time 360;
+    max-lease-time 5220;
+}
+
+subnet 10.76.2.0 netmask 255.255.255.0 {
+    range 10.76.2.9 10.76.2.27;
+    range 10.76.2.81 10.76.2.243;
+    option routers 10.76.2.1;
+    option broadcast-address 10.76.2.255;
+    option domain-name-servers 10.76.4.2;
+    default-lease-time 1800;
+    max-lease-time 5220;
+}
+
+subnet 10.76.3.0 netmask 255.255.255.0 {
+}
+
+subnet 10.76.4.0 netmask 255.255.255.0 {
+}
+
+host Erwin {
+    hardware ethernet ca:66:fa:14:a3:08;
+    fixed-address 10.76.2.156;
+}"
+
+# Write the configuration to dhcpd.conf
+echo "$subnet" > /etc/dhcp/dhcpd.conf
+
+# Restart the DHCP server
+service isc-dhcp-server restart
+```
+
+### Menambah konfiguras listen ke IP yang diberikan dan menolak dari selain IP tersebut
+>Colossal/Script12.sh
+```
+#!/bin/bash
+
+# Membuat direktori untuk menyimpan file htpasswd
+mkdir -p /etc/nginx/supersecret
+
+# Membuat file htpasswd dengan username arminannie dan password jrkmit25
+htpasswd -cb /etc/nginx/supersecret/htpasswd arminannie jrkmit25
+
+# Konfigurasi Round Robin
+echo '
+    upstream round-robin {
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 10.76.2.1:81;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            allow 10.76.1.77;
+            allow 10.76.1.88;
+            allow 10.76.2.144;
+            allow 10.76.2.156;
+            deny all;
+
+            proxy_pass http://round-robin;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+
+        location /titan {
+            proxy_pass https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki;
+        }
+    }
+' > /etc/nginx/sites-available/round_robin
+
+# Konfigurasi Weighted Round Robin
+echo '
+    upstream weight_round-robin {
+        server 10.76.2.2 weight=3;
+        server 10.76.2.3 weight=2;
+        server 10.76.2.4 weight=1;
+    }
+
+    server {
+        listen 10.76.2.1:82;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            allow 10.76.1.77;
+            allow 10.76.1.88;
+            allow 10.76.2.144;
+            allow 10.76.2.156;
+            deny all;
+
+            proxy_pass http://weight_round-robin;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+
+        location /titan {
+            proxy_pass https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki;
+        }
+    }
+' > /etc/nginx/sites-available/weight_round_robin
+
+# Konfigurasi Generic Hash
+echo '
+    upstream generic_hash {
+        hash $request_uri consistent;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 10.76.2.1:83;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            allow 10.76.1.77;
+            allow 10.76.1.88;
+            allow 10.76.2.144;
+            allow 10.76.2.156;
+            deny all;
+
+            proxy_pass http://generic_hash;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+
+        location /titan {
+            proxy_pass https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki;
+        }
+    }
+' > /etc/nginx/sites-available/generic_hash
+
+# Konfigurasi IP Hash
+echo '
+    upstream ip_hash {
+        ip_hash;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 10.76.2.1:84;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            allow 10.76.1.77;
+            allow 10.76.1.88;
+            allow 10.76.2.144;
+            allow 10.76.2.156;
+            deny all;
+
+            proxy_pass http://ip_hash;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+
+        location /titan {
+            proxy_pass https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki;
+        }
+    }
+' > /etc/nginx/sites-available/ip_hash
+
+# Konfigurasi Least Connections
+echo '
+    upstream least_connection {
+        least_conn;
+        server 10.76.2.2;
+        server 10.76.2.3;
+        server 10.76.2.4;
+    }
+
+    server {
+        listen 10.76.2.1:85;
+        root /var/www/html;
+        index index.php index.html index.htm;
+        server_name _;
+
+        location / {
+            allow 10.76.1.77;
+            allow 10.76.1.88;
+            allow 10.76.2.144;
+            allow 10.76.2.156;
+            deny all;
+
+            proxy_pass http://least_connection;
+            auth_basic "Restricted Content";
+            auth_basic_user_file /etc/nginx/supersecret/htpasswd;
+        }
+
+        location /titan {
+            proxy_pass https://attackontitan.fandom.com/wiki/Attack_on_Titan_Wiki;
+        }
+    }
+' > /etc/nginx/sites-available/least_connection
+
+# Aktivasi semua konfigurasi load balancer
+ln -sf /etc/nginx/sites-available/round_robin /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/weight_round_robin /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/generic_hash /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/ip_hash /etc/nginx/sites-enabled/
+ln -sf /etc/nginx/sites-available/least_connection /etc/nginx/sites-enabled/
+
+# Restart Nginx untuk menerapkan perubahan
+service nginx restart
+```
+
+### Menambah konfigurasi untuk client Erwin
+>Erwin/Script12.sh
+```
+#!/bin/bash
+
+echo "auto eth0
+iface eth0 inet dhcp
+hwaddress ether ca:66:fa:14:a3:08
+" > /etc/network/interfaces
+
+# Restart interface eth0 menggunakan ip link
+ip link set eth0 down
+ip link set eth0 up
+
+```
+
+### Cek apakah IP Erwin sudah berubah
+![Screenshot 2024-10-24 114902](https://github.com/user-attachments/assets/040b885f-2107-4d30-acac-1c344f3919e7)
+
+### Tes di client Erwin
+```
+lynx 10.76.3.3:81
+```
+![Screenshot 2024-10-22 185935](https://github.com/user-attachments/assets/aba1c8c9-6c23-4b5f-862e-7a06348474a6)
+
+### Tes di client Zeke yang memiliki IP tidak sesuai permintaan
+![Screenshot 2024-10-24 115331](https://github.com/user-attachments/assets/b8c821a7-cc68-4f98-b011-393c40895b32)
+![image](https://github.com/user-attachments/assets/4a6f81eb-7a44-4992-bafe-39db5f8e4660)
 
 
 
