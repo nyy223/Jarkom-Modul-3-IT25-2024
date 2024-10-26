@@ -159,6 +159,10 @@ apt-get update
 apt-get install mariadb-server -y
 ```
 ### Annie, Bertholdt, Reiner (Laravel Worker)
+```
+apt-get update
+apt-get install mariadb-server -y
+```
 ### Armin, Eren, Mikasa (PHP Worker)
 ### Zeke dan Erwin (Client)
 ```
@@ -1294,6 +1298,41 @@ lynx 10.76.3.3:81
 ![Screenshot 2024-10-24 115331](https://github.com/user-attachments/assets/b8c821a7-cc68-4f98-b011-393c40895b32)
 ![image](https://github.com/user-attachments/assets/4a6f81eb-7a44-4992-bafe-39db5f8e4660)
 
+## No.13
+Karena mengetahui bahwa ada keturunan marley yang mewarisi kekuatan titan, Zeke pun berinisiatif untuk menyimpan data data penting di Warhammer, dan semua data tersebut harus dapat diakses oleh anak buah kesayangannya, Annie, Reiner, dan Berthold.
 
+### Membuat script konfigurasi di Warhammer untuk menyimpan semua data penting
+>Warhammer/Script13.sh
+```
+#!/bin/bash
+apt-get update
+apt-get install mariadb-server -y
+service mysql start
 
+mysql -e "CREATE USER 'kelompokit25'@'%' IDENTIFIED BY 'passwordit25';"
+mysql -e "CREATE USER 'kelompokit25'@'localhost' IDENTIFIED BY 'passwordit25';"
+mysql -e "CREATE DATABASE dbkelompokit25;"
+mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'kelompokit25'@'%';"
+mysql -e "GRANT ALL PRIVILEGES ON *.* TO 'kelompokit25'@'localhost';"
+mysql -e "FLUSH PRIVILEGES;"
+
+mysql="[mysqld]
+skip-networking=0
+skip-bind-address
+"
+echo "$mysql" > /etc/mysql/my.cnf
+
+service mysql restart
+```
+### Test mysql
+<img width="722" alt="Screenshot 2024-10-26 at 23 09 46" src="https://github.com/user-attachments/assets/6db7584c-8cd9-4220-aa77-e62ecfe9d329">
+
+### Test di Laravel Worker
+Jalankan command `mariadb --host=10.76.3.4 --port=3306 --user=kelompokit25 --password`
+
+Hasil 
+
+<img width="752" alt="Screenshot 2024-10-26 at 23 13 24" src="https://github.com/user-attachments/assets/61e3fcf8-a9c7-4ffc-9b88-09c3505e1988">
+<img width="742" alt="Screenshot 2024-10-26 at 23 13 59" src="https://github.com/user-attachments/assets/353a67d7-be7e-4611-bb1f-515dc0232db0">
+<img width="741" alt="Screenshot 2024-10-26 at 23 14 28" src="https://github.com/user-attachments/assets/6ac02943-37cf-481d-944f-ba14c689d659">
 
