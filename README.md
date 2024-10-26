@@ -445,7 +445,10 @@ Dikarenakan Armin sudah mendapatkan kekuatan titan colossal, maka bantulah kaum 
 #!/bin/bash
 
 # Konfigurasi nameserver
-echo nameserver 10.76.4.3 > /etc/resolv.conf
+echo -e '
+nameserver 10.76.4.3
+nameserver 192.168.122.1
+' > /etc/resolv.conf
 
 # Update dan install paket yang diperlukan
 apt-get update
